@@ -1,4 +1,5 @@
 library(quanteda.textmodels)
+library(quanteda.textstats)
 library(quanteda)
 library(tidyverse)
 library(here)
