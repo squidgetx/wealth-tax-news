@@ -1,0 +1,7 @@
+renv
+raw-opeds/*
+para-opeds/*
+txt-opeds/*
+.DS_Store
+.venv/*
+congress-model/hein-daily/*.txt
