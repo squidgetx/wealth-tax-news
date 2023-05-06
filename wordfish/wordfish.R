@@ -28,8 +28,9 @@ train_wf_manual <- function(opeds, labeled, subset_var, pos_i, neg_i) {
     ))
     dfm <- opeds %>%
         preprocess() %>%
-        dfm() %>%
-        dfm_subset(!!as.symbol(subset_var) == 1) %>%
+        dfm()
+    dfm.sub <- dfm %>%
+        dfm_subset(docvars(dfm)[, subset_var]) %>%
         dfm_trim(min_termfreq = 2)
     textmodel_wordfish(dfm, dir = dir)
 }
