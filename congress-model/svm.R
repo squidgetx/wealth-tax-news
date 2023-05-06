@@ -29,7 +29,7 @@ congress_stopwords <-
 
 get_speeches <- function(N) {
 
-    data_dir <- here("article-ideology/congress-speeches-gentzkow/hein-daily")
+    data_dir <- here("congress-model/hein-daily")
 
     speeches <- read_delim(paste0(data_dir, "/speeches_", N, ".txt"), delim = "|")
     speech_desc <- read_delim(paste0(data_dir, "/descr_", N, ".txt"), delim = "|")
@@ -122,10 +122,7 @@ train_svm <- function(corpus, trainProp) {
     list(cmat=cmat, model=model, train_x_feat=featnames(train_x))
 }
 
+print("training...")
 res <- train_svm(sc, trainProp=0.8)
 save(res, file='svm_74_year_113_114.Rda')
 
-load(file='./news-scraping/NYT/keystone-100.Rda')
-sc <- corpus(df)
-test_x <- make_dfm_test(sc, res$train_x_feat)
-df$pred <- predict(res$model, newdata = test_x)
