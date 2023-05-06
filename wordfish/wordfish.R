@@ -66,7 +66,7 @@ train_wf_gpt <- function(opeds, suffix, subset_var) {
     textmodel_wordfish(dfm, dir = c(0, 1))
 }
 
-wf.vanilla <- train_wf_manual(opeds, labeled, "about_ineq_manual", 15, 99)
-wf.gpt <- train_wf_gpt(opeds, "ineq", "about_ineq_manual")
+wf.vanilla <- train_wf_manual(opeds, labeled, "about_wt_manual", 15, 99)
+wf.gpt <- train_wf_gpt(opeds, "ineq", "about_wt_manual")
 wf.wealth_tax <- list(vanilla = wf.vanilla, gpt = wf.gpt)
 save(wf.wealth_tax, here("wordfish/wf.wealth_tax.Rda"))
