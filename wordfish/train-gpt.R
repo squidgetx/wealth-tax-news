@@ -1,7 +1,6 @@
-
-library(quanteda)
 library(quanteda.textmodels)
 library(quanteda.textstats)
+library(quanteda)
 library(tidyverse)
 library(readtext)
 library(here)
@@ -23,18 +22,17 @@ train_wf_manual <- function(opeds, labeled, subset_var, pos_i, neg_i) {
     positive_wt_candidate <- labeled %>% filter(rn == pos_i)
     negative_wt_candidate <- labeled %>% filter(rn == neg_i)
 
+    dir <- c(which(
+        opeds$textfile == positive_wt_candidate$textfile & opeds$para_n == positive_wt_candidate$para_n,
+    ), which(
+        opeds$textfile == negative_wt_candidate$textfile & opeds$para_n == negative_wt_candidate$para_n,
+    ))
     dfm <- opeds %>%
         preprocess() %>%
         dfm()
     dfm.sub <- dfm %>%
         dfm_subset(opeds[, subset_var][[1]]) %>%
         dfm_trim(min_termfreq = 2)
-    dir <- c(which(
-        docvars(dfm.sub)$textfile == positive_wt_candidate$textfile & docvars(dfm.sub)$para_n == positive_wt_candidate$para_n,
-    ), which(
-        docvars(dfm.sub)$textfile == negative_wt_candidate$textfile & docvars(dfm.sub)$para_n == negative_wt_candidate$para_n,
-    ))
-   
     textmodel_wordfish(dfm.sub, dir = dir)
 }
 
@@ -69,5 +67,5 @@ train_wf_gpt <- function(opeds, suffix, subset_var) {
     textmodel_wordfish(gpt.dfm, dir = c(0, 1))
 }
 
-wf.vanilla <- train_wf_manual(opeds, labeled, "about_wt_manual", 15, 99)
-save(wf.vanilla, file=here("wordfish/wf.wealth_tax.vanilla.Rda"))
+wf.gpt <- train_wf_gpt(opeds, 'ineq', "about_wt_manual")
+save(wf.gpt, file=here("wordfish/wf.wealth_tax.gpt"))
