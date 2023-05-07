@@ -1,0 +1,12 @@
+#!/bin/bash 
+#SBATCH --nodes=1                        # requests 3 compute servers
+#SBATCH --cpus-per-task=4                # uses 1 compute core per task
+#SBATCH --time=2:00:00
+#SBATCH --mem=32GB
+#SBATCH --job-name=wordfish
+#SBATCH --output=wordfish/log.out
+
+module purge
+module load r/gcc/4.2.0
+Rscript wordfish/train.R
+

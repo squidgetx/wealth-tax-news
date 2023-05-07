@@ -2,6 +2,7 @@ library(quanteda.textmodels)
 library(quanteda.textstats)
 library(quanteda)
 library(tidyverse)
+library(readtext)
 library(here)
 
 # todo move this somewhere
@@ -30,9 +31,9 @@ train_wf_manual <- function(opeds, labeled, subset_var, pos_i, neg_i) {
         preprocess() %>%
         dfm()
     dfm.sub <- dfm %>%
-        dfm_subset(docvars(dfm)[, subset_var]) %>%
+        dfm_subset(opeds[, subset_var][[1]]) %>%
         dfm_trim(min_termfreq = 2)
-    textmodel_wordfish(dfm, dir = dir)
+    textmodel_wordfish(dfm.sub, dir = dir)
 }
 
 train_wf_gpt <- function(opeds, suffix, subset_var) {
@@ -69,4 +70,4 @@ train_wf_gpt <- function(opeds, suffix, subset_var) {
 wf.vanilla <- train_wf_manual(opeds, labeled, "about_wt_manual", 15, 99)
 wf.gpt <- train_wf_gpt(opeds, "ineq", "about_wt_manual")
 wf.wealth_tax <- list(vanilla = wf.vanilla, gpt = wf.gpt)
-save(wf.wealth_tax, here("wordfish/wf.wealth_tax.Rda"))
+save(wf.wealth_tax, file=here("wordfish/wf.wealth_tax.Rda"))
