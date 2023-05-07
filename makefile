@@ -12,6 +12,11 @@ make_paragraphs:
 	python3 make_paragraphs.py
 	python3 prepare_paragraph_df.py
 
+label:
+	Rscript prep_chunk_to_label.R
+	python3 lablr.py
+	Rscript process_labels.R
+
 # Using a (manually labeled) set of paragraphs (run python3 lablr.py),
 # calculate whether each paragraph is relevant (ie, about inequality) or not
 # Outputs a tsv with classifier predictions of relevvance

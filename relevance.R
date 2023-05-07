@@ -5,11 +5,11 @@ library(quanteda)
 library(quanteda.textstats)
 library(quanteda.textmodels)
 library(caret)
-labeled <- read_tsv("oped_sample_20.tsv.labeled.tsv") %>% mutate(
-    about_ineq = !(ineq == 0 | ineq == ""),
-    about_billion = !(billionaire == 0 | billionaire == ""),
-    about_wt = !(wealth_tax == 0 | wealth_tax == ""),
-)
+
+LABELED <- here("data/oped_paragraphs_with_labels.tsv")
+OUTFILE <- here("data/oped.paragraphs.relevance.tsv")
+
+
 
 preprocess <- function(corp) {
     tokens <- corpus(corp) %>%
@@ -20,16 +20,9 @@ preprocess <- function(corp) {
     tokens %>% tokens_compound(colocs)
 }
 
-tokens <- preprocess(labeled)
-dfm <- tokens %>%
-    dfm() %>%
-    dfm_trim(min_termfreq = 2)
-
-model_featnames <- featnames(dfm)
 
 
-assign_tt_split <- function(dfm, trainProp, seed = 42) {
-    set.seed(seed)
+assign_tt_split <- function(dfm, trainProp) {
     train <- sample(c(0, 1), nrow(labeled), prob = c(1 - trainProp, trainProp), replace = TRUE)
     docvars(dfm)$train <- train
     dfm
@@ -50,6 +43,17 @@ evaluate_model <- function(dfm, model, yvar) {
     confusionMatrix(preds, test.y, mode = "prec_recall", positive = "TRUE")
 }
 
+labeled <- read_tsv(LABELED) %>% filter(!is.na(ineq)) %>% mutate(
+    about_ineq = !(ineq == 0 | ineq == ""),
+    about_billion = !(billionaire == 0 | billionaire == ""),
+    about_wt = !(wealth_tax == 0 | wealth_tax == ""),
+)
+tokens <- preprocess(labeled)
+dfm <- tokens %>%
+    dfm() %>%
+    dfm_trim(min_termfreq = 2)
+
+model_featnames <- featnames(dfm)
 dfm.tt <- assign_tt_split(dfm, 0.7)
 
 ineq.model <- train_model(dfm.tt, "about_ineq")
@@ -66,7 +70,7 @@ evaluate_model(dfm.tt, wt.model, "about_wt")
 # can we investigate the distinguishing words?
 # fuck it we'll just use a basic keyword model for this one: "wealth_tax" or "wealth_taxation"
 
-all.df <- read_tsv("oped_paragraphs.tsv")
+all.df <- read_tsv(LABELED)
 
 all.tokens <- preprocess(all.df)
 all.dfm <- all.tokens %>%
@@ -78,4 +82,6 @@ all.df$about_ineq_pred <- predict(ineq.model, all.dfm.matched)
 all.df$about_billion_pred <- predict(billion.model, all.dfm.matched)
 all.df$about_wt_pred <- predict(wt.model, all.dfm.matched)
 all.df$about_wt_manual <- str_detect(tolower(all.df$text), "wealth tax")
-all.df %>% write_tsv("oped.paragraphs.relevance.tsv")
+all.df %>% write_tsv(OUTFILE)
+save(all.df, file = "opeds.Rda")
+save(all.dfm, file = "opeds.dfm.Rda")
