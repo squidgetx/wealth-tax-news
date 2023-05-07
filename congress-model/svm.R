@@ -110,7 +110,9 @@ train_svm <- function(corpus, trainProp) {
     model <- svm(x = train_x, y = train_y, 
                       gamma = prob_model$best.parameters$gamma, 
                       coef0 = prob_model$best.parameters$coef0, 
-                      probability = TRUE)
+                      probability = TRUE,
+                      cachesize=1000
+    )
 
     # out of sample test
     corpus_test <- corpus[-ids_train]
