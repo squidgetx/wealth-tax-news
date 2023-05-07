@@ -18,13 +18,9 @@ preprocess <- function(corp) {
         tokens_tolower() %>%
         tokens_remove(stopwords("en"))
     colocs <- textstat_collocations(tokens, min_count = 5)
-    tokens %>% tokens_compound(colocs)
+    tokens %>% tokens_compound(colocs) %>%
+    tokens_remove(outlet_stopwords) 
 }
-
-outlet.corpus <- read_tsv(here("oped.paragraphs.relevance.tsv")) %>%
-    preprocess() %>%
-    tokens_remove(outlet_stopwords) %>%
-    tokens_subset(source %in% c("Wall Street Journal (Online)", "New York Times (Online)"))
 
 make_dfm <- function(tokens) {
     tokens %>% dfm()
@@ -72,9 +68,11 @@ train_svm <- function(corpus, trainProp) {
 
     preds <- predict(model, newdata = test_x)
     cmat <- confusionMatrix(preds, test_y, mode = "prec_recall")
-    list(cmat = cmat, model = model, train_x_feat = featnames(train_x))
+    list(
+        cmat = cmat, 
+        model = model, 
+        ids_train = ids_train, 
+        train_x_feat = featnames(train_x), 
+        prob_model=prob_model
+    )
 }
-
-print("training...")
-res <- train_svm(outlet.corpus, trainProp = 0.8)
-save(res, file = here("outlet-model/svm.Rda"))

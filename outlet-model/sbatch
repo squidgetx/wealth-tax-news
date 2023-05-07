@@ -8,5 +8,5 @@
 
 module purge
 module load r/gcc/4.2.0
-Rscript outlet-model/svm.R
+Rscript outlet-model/train.R
 
